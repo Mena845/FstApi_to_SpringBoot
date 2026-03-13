@@ -35,4 +35,4 @@ public class Booking {
     public void setEmail(String email) { this.email = email; }
     public void setRoomNumber(int roomNumber) { this.roomNumber = roomNumber; }
     public void setRoomDescription(String roomDescription) { this.roomDescription = roomDescription; }
-    public void setBookingDate(LocalDate bookingDate) { this.bookingDate = bookingDate; }
+    public void setBookingDate(LocalDate bookingDate) { this.bookingDate = bookingDate; }}
