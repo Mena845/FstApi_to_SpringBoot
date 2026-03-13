@@ -1,40 +1,48 @@
 package org.example.fastapi_to_springboot.controller;
 
 import java.time.LocalDate;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
+@RestController
+@RequestMapping("/booking")
 public class BookingController {
 
-        private String clientName;
-        private String phone;
-        private String email;
-        private int roomNumber;
-        private String roomDescription;
-        private LocalDate bookingDate;
+    private final BookingService bookingService;
 
-        public BookingController() {}
+    // Injection par constructeur (pas besoin de @Autowired)
+    public BookingController(BookingService bookingService) {
+        this.bookingService = bookingService;
+    }
 
-        public BookingController(String clientName, String phone, String email,
-                       int roomNumber, String roomDescription, LocalDate bookingDate) {
-            this.clientName = clientName;
-            this.phone = phone;
-            this.email = email;
-            this.roomNumber = roomNumber;
-            this.roomDescription = roomDescription;
-            this.bookingDate = bookingDate;
+    // a. GET /booking
+    @GetMapping
+    public List<Booking> getBookings() {
+        return bookingService.getAllBookings();
+    }
+
+    // b. POST /booking
+    @PostMapping
+    public ResponseEntity<?> createBooking(@RequestBody Booking booking) {
+
+        // d. vérification numéro chambre
+        if (booking.getRoomNumber() < 1 || booking.getRoomNumber() > 9) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("Room number must be between 1 and 9");
         }
 
-        public String getClientName() { return clientName; }
-        public String getPhone() { return phone; }
-        public String getEmail() { return email; }
-        public int getRoomNumber() { return roomNumber; }
-        public String getRoomDescription() { return roomDescription; }
-        public LocalDate getBookingDate() { return bookingDate; }
+        try {
+            bookingService.addBooking(booking);
+            return ResponseEntity.ok(booking);
+        } catch (RuntimeException e) {
 
-        public void setClientName(String clientName) { this.clientName = clientName; }
-        public void setPhone(String phone) { this.phone = phone; }
-        public void setEmail(String email) { this.email = email; }
-        public void setRoomNumber(int roomNumber) { this.roomNumber = roomNumber; }
-        public void setRoomDescription(String roomDescription) { this.roomDescription = roomDescription; }
-        public void setBookingDate(LocalDate bookingDate) { this.bookingDate = bookingDate; }
-
+            // c. chambre déjà réservée
+            return ResponseEntity
+                    .status(409)
+                    .body("Room already booked for this date");
+        }
+    }
 }
